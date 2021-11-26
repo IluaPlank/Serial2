@@ -2,6 +2,13 @@ import java.io.*;
 import java.util.zip.*;
 
 public class Main {
+    final static String SAVE1 = "D://netologi//Games//savegames//save1.dat";
+    final static String SAVE2 = "D://netologi//Games//savegames//save2.dat";
+    final static String SAVE3 = "D://netologi//Games//savegames//save3.dat";
+    final static String SAVE_GAMES = "D://netologi//Games//savegames";
+    final static String SAVE_GAMES_ZIP = "D://netologi//Games//savegames";
+
+
     public static void main(String[] args) {
         GameProgress game1 = new GameProgress(100, 2, 1, 5.0);
         GameProgress game2 = new GameProgress(92, 3, 52, 15.0);
@@ -12,18 +19,14 @@ public class Main {
         saveGame(game3, 3);
 
 
-        zipSave("D://netologi//Games//savegames//save1.dat",
-                "D://netologi//Games//savegames//save2.dat",
-                "D://netologi//Games//savegames//save3.dat");
+        zipSave(SAVE1, SAVE2, SAVE3);
 
-        deleteSave("D://netologi//Games//savegames");
+        deleteSave(SAVE_GAMES);
 
 
-        zipUnpack("D://netologi//Games//savegames//Saves.zip", "D://netologi//Games//savegames");
+        zipUnpack(SAVE_GAMES_ZIP, SAVE_GAMES);
 
-        saveUnpack("D://netologi//Games//savegames//save1.dat",
-                "D://netologi//Games//savegames//save2.dat",
-                "D://netologi//Games//savegames//save3.dat");
+        saveUnpack(SAVE1, SAVE2, SAVE3);
     }
 
     public static void saveGame(GameProgress game, int numberSave) {
@@ -36,16 +39,18 @@ public class Main {
     }
 
     public static void zipSave(String... files) {
-        try (ZipOutputStream zout = new ZipOutputStream(new FileOutputStream("D://netologi//Games//savegames//Saves.zip"))) {
+        try (ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(SAVE_GAMES_ZIP))) {
             for (String file : files) {
-                FileInputStream fis = new FileInputStream(file);
-                ZipEntry entry = new ZipEntry(file.substring(32));
-                zout.putNextEntry(entry);
-                byte[] buffer = new byte[fis.available()];
-                fis.read(buffer);
-                zout.write(buffer);
-                zout.closeEntry();
-                fis.close();
+                try (FileInputStream fis = new FileInputStream(file)) {
+                    ZipEntry entry = new ZipEntry(file.substring(32));
+                    zout.putNextEntry(entry);
+                    byte[] buffer = new byte[fis.available()];
+                    fis.read(buffer);
+                    zout.write(buffer);
+                    zout.closeEntry();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
